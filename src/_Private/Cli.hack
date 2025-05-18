@@ -90,7 +90,10 @@ final class Cli {
         await $this->fileGetContentsAsync($file_info->getPathname())
         |> Str\split($$, "\n")
         |> static::parseTestsFromFile($file_info->getPathname(), $$)
-        |> vec($$),
+        |> Vec\sort_by(
+          $$,
+          $x ==> Str\lowercase($x['namespace'].'__'.$x['name']),
+        ),
     )
       |> Vec\flatten($$)
       |> Vec\map(
@@ -145,7 +148,8 @@ use namespace HH\Lib\{IO, Vec};
 
 <<__DynamicallyCallable, __EntryPoint>>
 async function run_tests_async()[defaults]: Awaitable<void> {
-  $_argv = HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string);
+  $_argv = HH\global_get('argv') as Container<_>
+    |> Vec\map($$, $x ==> $x as string);
   $tests = await tests_async();
   $result = await $tests
     ->withParallelGroupExecution()
