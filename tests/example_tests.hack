@@ -32,7 +32,19 @@ function passing_test(TestChain\Chain $chain)[]: TestChain\Chain {
       if (2 * 3 !== 6) {
         throw new \LogicException('2 * 3 !== 6');
       }
-    });
+    })
+    ->testWith3ParamsAsync(
+      'division',
+      async () ==> vec[
+        tuple(8, 2, 4),
+        tuple(12, 3, 4),
+      ],
+      async ($a, $b, $expected) ==> {
+        if ($a / $b !== $expected) {
+          throw new \LogicException('math broke');
+        }
+      },
+    );
 }
 
 function not_a_test_function()[]: void {}
