@@ -1,0 +1,38 @@
+# Copyright (c) 2024, Hershel Theodore Layton
+# Copies of this file can be made, with or without changes,
+# under the terms of the MIT-0 license.
+
+name: Continuous Integration
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Run every day at 6:04PM
+    - cron: "04 18 * * *"
+jobs:
+  build:
+    name: HHVM ${{matrix.hhvm}}
+    strategy:
+      fail-fast: false
+      matrix:
+        hhvm:
+          - "4.102"
+          - "4.128"
+          - "4.153"
+          - "4.168"
+    runs-on: ubuntu-24.04
+    container:
+      image: hhvm/hhvm:${{matrix.hhvm}}-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create branch for version alias
+        run: |
+          git config --global --add safe.directory $(pwd)
+          git checkout -b CI_current_pull_request
+      - uses: hershel-theodore-layton/actions/hack-lint-test@master
+        with:
+          hhvm: ${{matrix.hhvm}}
+          hhvm_flags: -dhhvm.autoload.enabled=true -dhhvm.autoload.db.path=.var/facts-%{euid}-%{schema}.db
+          skip_lint: ${{matrix.hhvm == '4.102'}}
+          lint_engine: pha
