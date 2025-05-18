@@ -11,7 +11,7 @@ use const PHP_EOL;
 <<__EntryPoint>>
 async function bin_async()[defaults]: Awaitable<void> {
   initialize_autoloader();
-  $argv = \HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string);
+  $argv = \HH\global_get('argv') as Container<_> |> Vec\map($$, $x ==> $x as string);
 
   $cwd = getcwd();
   $hhconfig = $cwd.'/.hhconfig';
