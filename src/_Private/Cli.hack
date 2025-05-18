@@ -235,8 +235,12 @@ HACK;
       }
 
       echo Str\format(
-        "Codegen out of date.\nFiles should not need to change in CI.\n%s\n",
+        "Codegen out of date.\nFiles should not need to change in CI.\n%s\n".
+        "Before:---\n%s\n---".
+        "After:---\n%s\n---",
         $path,
+        $old_contents,
+        $contents,
       );
       exit(1);
     }
