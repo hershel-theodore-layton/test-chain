@@ -3,17 +3,32 @@
 namespace HTL\TestChain\_Private;
 
 use namespace HH;
-use namespace HH\Lib\Vec;
+use namespace HH\Lib\{C, Vec};
 use namespace HTL\TestChain;
 use type InvalidArgumentException;
-use function dirname;
+use function dirname, file_exists, getcwd;
+use const PHP_EOL;
 
 <<__EntryPoint>>
 async function bin_async()[defaults]: Awaitable<void> {
   initialize_autoloader();
-  await TestChain\cli_async(
-    \HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string),
-  );
+  $argv = \HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string);
+
+  $hhconfig = getcwd().'/.hhconfig';
+
+  if (
+    !file_exists($hhconfig) && !C\contains($argv, '--skip-working-dir-check')
+  ) {
+    echo 'This script is intended to be run at the root of your repository,'.
+      ' but the hhconfig file '.
+      $hhconfig.
+      ' does not exist. Please run this script from the root of your repository'.
+      ' or pass the --skip-working-dir-check flag to bypass this message.'.
+      PHP_EOL;
+    exit(1);
+  }
+
+  await TestChain\cli_async($argv);
 }
 
 /**
@@ -21,7 +36,7 @@ async function bin_async()[defaults]: Awaitable<void> {
  * @copyright Hershel Theodore Layton, 2025
  *
  * This function is licensed under MIT-0. It may be copied freely without
- * restriction. Not even this docblock need to be preserved
+ * restriction. Not even this docblock need to be preserved.
  */
 function initialize_autoloader()[defaults]: void {
   if (HH\autoload_is_native()) {
@@ -57,6 +72,7 @@ function initialize_autoloader()[defaults]: void {
     'Could not find vendor/autoload.hack and native autoloading was not enabled. '.
     'You can resolve this by enabling `hhvm.autoload.enabled = true` in your '.
     'INI settings and setting a `hhvm.autoload.db.path`. If you cannot use '.
-    'native autoloading, invoke vendor/bin/hh-autoload and try again.';
+    'native autoloading, invoke vendor/bin/hh-autoload and try again.'.
+    PHP_EOL;
   exit(1);
 }
