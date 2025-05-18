@@ -51,18 +51,18 @@ final class ChainController<T as Chain> {
       $err = IO\request_error() ?? IO\request_output();
 
       if ($result->isSuccess()) {
-        await $err->writeAllAsync('.');
+        await $err->writeAllAsync(Str\format("P: %s\n", $result->getName()));
         return;
       }
 
       await $err->writeAllAsync(Str\format(
-        "\n---\nF: %s (%d) tests failed\n%s\n---\n",
+        "F: %s (%d) tests failed\n%s\n---\n",
         $result->getName(),
         C\count($result->getFailures()),
         Vec\map(
           $result->getFailures(),
           $f ==> Str\format(
-            "\t- %s: %s",
+            '  - %s: %s',
             $f->getName(),
             $f->getFailure()->getMessage(),
           ),

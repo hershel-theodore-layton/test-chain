@@ -13,7 +13,7 @@ final class InnerTestFailedException extends RuntimeException {
   }
 
   public function getQualifiedName()[]: string {
-    return $this->name.$this->subTest;
+    return $this->name.' @ '.$this->subTest;
   }
 
   public function getFailure()[]: Throwable {
