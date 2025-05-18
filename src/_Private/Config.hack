@@ -79,6 +79,10 @@ final class Config {
       }
     )();
 
+    if ($structure is KeyedContainer<_, _>) {
+      $structure = darray($structure);
+    }
+
     if (!$structure is this::TJson) {
       throw new RuntimeException(
         'Invalid config: Does not match the Config::TJson structure',
