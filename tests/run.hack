@@ -6,7 +6,8 @@ use namespace HH\Lib\{IO, Vec};
 
 <<__DynamicallyCallable, __EntryPoint>>
 async function run_tests_async()[defaults]: Awaitable<void> {
-  $_argv = HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string);
+  $_argv = HH\global_get('argv') as Container<_>
+    |> Vec\map($$, $x ==> $x as string);
   $tests = await tests_async();
   $result = await $tests
     ->withParallelGroupExecution()
