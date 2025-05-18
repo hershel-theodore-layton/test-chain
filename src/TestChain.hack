@@ -10,7 +10,9 @@ final class TestChain implements Chain {
     private dict<string, (function()[defaults]: Awaitable<void>)> $tests,
   )[] {}
 
-  public static function create()[]: this {
+  public static function create(
+    (function(Chain)[defaults]: mixed) $_registration,
+  )[]: this {
     return new TestChain('unnamed group', dict[]);
   }
 
