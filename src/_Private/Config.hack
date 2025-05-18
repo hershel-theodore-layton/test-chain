@@ -3,7 +3,7 @@ namespace HTL\TestChain\_Private;
 
 use namespace HH\Lib\SecureRandom;
 use type RuntimeException;
-use function json_decode_with_error, json_encode_pure;
+use function json_decode_with_error, json_encode_with_error;
 use const JSON_FB_HACK_ARRAYS,
   JSON_PRETTY_PRINT,
   JSON_UNESCAPED_SLASHES,
@@ -49,9 +49,9 @@ final class Config {
     return $working_directory.'/'.$this->json['test_dir'];
   }
 
-  public function toJson()[]: string {
+  public function toJson()[defaults]: string {
     $_error = null;
-    return json_encode_pure(
+    return json_encode_with_error(
       $this->json,
       inout $_error,
       JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
