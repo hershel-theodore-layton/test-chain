@@ -9,4 +9,7 @@ interface Chain {
     string $name,
     (function()[defaults]: void) $test,
   )[]: this;
+  public function runTestsAsync(
+    ChainController::TOptions $options,
+  )[defaults]: Awaitable<TestGroupResult>;
 }

@@ -8,5 +8,7 @@ use namespace HH\Lib\Vec;
 async function run_tests_async()[defaults]: Awaitable<void> {
   $_argv = HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string);
   $tests = await tests_async();
-  await $tests->withParallelGroupExecution()->runAllAsync();
+  $results = await $tests
+    ->withParallelGroupExecution()
+    ->runAllAsync($tests->getBasicProgressReporter());
 }

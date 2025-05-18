@@ -25,4 +25,14 @@ async function my_test_async(
     });
 }
 
+<<TestChain\Discover>>
+function passing_test(TestChain\Chain $chain)[]: TestChain\Chain {
+  return $chain->group(__FUNCTION_CREDENTIAL__)
+    ->test('multiplication', () ==> {
+      if (2 * 3 !== 6) {
+        throw new \LogicException('2 * 3 !== 6');
+      }
+    });
+}
+
 function not_a_test_function()[]: void {}

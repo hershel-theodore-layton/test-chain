@@ -7,5 +7,6 @@ async function tests_async(
 )[defaults]: Awaitable<TestChain\ChainController<TestChain\Chain>> {
   return TestChain\ChainController::create(TestChain\TestChain::create<>)
     ->addTestGroup(\HTL\TestChain\SomeProject\my_test<>)
-    ->addTestGroupAsync(\HTL\TestChain\SomeProject\my_test_async<>);
+    ->addTestGroupAsync(\HTL\TestChain\SomeProject\my_test_async<>)
+    ->addTestGroup(\HTL\TestChain\SomeProject\passing_test<>);
 }
