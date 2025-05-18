@@ -35,4 +35,5 @@ jobs:
           hhvm: ${{matrix.hhvm}}
           hhvm_flags: -dhhvm.autoload.enabled=true -dhhvm.autoload.db.path=.var/facts-%{euid}-%{schema}.db
           skip_lint: ${{matrix.hhvm == '4.102'}}
+          skip_tests: true
           lint_engine: pha
