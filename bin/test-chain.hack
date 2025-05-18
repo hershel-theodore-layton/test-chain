@@ -4,7 +4,6 @@ namespace HTL\TestChain\_Private;
 
 use namespace HH;
 use namespace HH\Lib\{C, Vec};
-use namespace HTL\TestChain;
 use type InvalidArgumentException;
 use function dirname, file_exists, getcwd;
 use const PHP_EOL;
@@ -14,7 +13,8 @@ async function bin_async()[defaults]: Awaitable<void> {
   initialize_autoloader();
   $argv = \HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string);
 
-  $hhconfig = getcwd().'/.hhconfig';
+  $cwd = getcwd();
+  $hhconfig = $cwd.'/.hhconfig';
 
   if (
     !file_exists($hhconfig) && !C\contains($argv, '--skip-working-dir-check')
@@ -28,7 +28,7 @@ async function bin_async()[defaults]: Awaitable<void> {
     exit(1);
   }
 
-  await TestChain\cli_async($argv);
+  await Cli::goAsync($cwd, $argv);
 }
 
 /**
