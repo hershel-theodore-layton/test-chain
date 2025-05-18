@@ -78,12 +78,13 @@ final class ChainController<T as Chain> {
 
   public async function runAllAsync(
     (function(TestGroupResult)[defaults]: Awaitable<void>) $callback,
-  )[defaults]: Awaitable<vec<TestGroupResult>> {
+  )[defaults]: Awaitable<TestSuiteResult> {
     if ($this->options['parallel_groups']) {
-      return await $this->runInParallelAsync($callback);
+      return
+        await $this->runInParallelAsync($callback) |> new TestSuiteResult($$);
     }
 
-    return await $this->runInSeriesAsync($callback);
+    return await $this->runInSeriesAsync($callback) |> new TestSuiteResult($$);
   }
 
   public async function runInParallelAsync(

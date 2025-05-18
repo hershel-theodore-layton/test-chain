@@ -1,6 +1,7 @@
 /** test-chain is MIT licensed, see /LICENSE. */
 namespace HTL\TestChain\_Private;
 
+use namespace HH;
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
 use type Exception, RecursiveDirectoryIterator, SplFileInfo;
 use function dirname, is_dir, mkdir;
@@ -11,12 +12,14 @@ final class Cli {
     shape('is_async' => bool, 'namespace' => string, 'name' => string /*_*/);
   private string $configPath;
   private bool $isDryRun;
+  private bool $runTests;
 
   public function __construct(
     private string $workingDirectory,
     vec<string> $argv,
   )[] {
-    $this->isDryRun = C\contains($argv, '--dry-run');
+    $this->isDryRun = C\contains($argv, '--ci');
+    $this->runTests = $this->isDryRun || C\contains($argv, '--run');
     $this->configPath = $this->workingDirectory.'/tests/test-chain/config.json';
   }
 
@@ -33,6 +36,10 @@ final class Cli {
     await static::terminateOnErrorAsync(
       () ==> $this->runWriteChainAsync($config),
     );
+    if ($this->runTests) {
+      $entrypoint = $config->getNamespace().'\\run_tests_async';
+      await HH\dynamic_fun($entrypoint)();
+    }
   }
 
   private async function runInitialSetupAsync()[defaults]: Awaitable<Config> {
@@ -134,15 +141,23 @@ __LICENSE_COMMENT__
 namespace __NAMESPACE__;
 
 use namespace HH;
-use namespace HH\Lib\Vec;
+use namespace HH\Lib\{IO, Vec};
 
-<<__EntryPoint>>
+<<__DynamicallyCallable, __EntryPoint>>
 async function run_tests_async()[defaults]: Awaitable<void> {
   $_argv = HH\global_get('argv') as vec<_> |> Vec\map($$, $x ==> $x as string);
   $tests = await tests_async();
-  $results = await $tests
+  $result = await $tests
     ->withParallelGroupExecution()
     ->runAllAsync($tests->getBasicProgressReporter());
+
+  $output = IO\request_output();
+  if ($result->isSuccess()) {
+    await $output->writeAllAsync("\nNo errors!\n");
+    return;
+  }
+
+  exit(1);
 }
 
 HACK;
@@ -211,6 +226,12 @@ HACK;
     string $contents,
   )[defaults]: Awaitable<void> {
     if ($this->isDryRun) {
+      $old_contents = await $this->fileGetContentsAsync($path);
+
+      if ($old_contents === $contents) {
+        return;
+      }
+
       echo Str\format(
         "Should not need to write files, such as %s in a dry run.\n",
         $path,
