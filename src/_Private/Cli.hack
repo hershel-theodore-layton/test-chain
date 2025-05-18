@@ -233,7 +233,7 @@ HACK;
       }
 
       echo Str\format(
-        "Should not need to write files, such as %s in a dry run.\n",
+        "Codegen out of date.\nFiles should not need to change in CI.\n%s\n",
         $path,
       );
       exit(1);
