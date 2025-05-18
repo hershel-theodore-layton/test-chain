@@ -6,7 +6,7 @@ use namespace HTL\TestChain;
 
 <<TestChain\Discover>>
 function my_test(TestChain\Chain $chain)[]: TestChain\Chain {
-  return $chain->group(__FUNCTION_CREDENTIAL__)
+  return $chain->group(__FUNCTION__)
     ->test('addition', () ==> {
       throw new \RuntimeException('not implementetd');
     });
@@ -19,7 +19,7 @@ async function my_test_async(
   // Here you can write code to execute before the first test.
   await Asio\later();
 
-  return $chain->group(__FUNCTION_CREDENTIAL__)
+  return $chain->group(__FUNCTION__)
     ->test('subtraction', () ==> {
       throw new \RuntimeException('not implemented async');
     });
@@ -27,7 +27,7 @@ async function my_test_async(
 
 <<TestChain\Discover>>
 function passing_test(TestChain\Chain $chain)[]: TestChain\Chain {
-  return $chain->group(__FUNCTION_CREDENTIAL__)
+  return $chain->group(__FUNCTION__)
     ->test('multiplication', () ==> {
       if (2 * 3 !== 6) {
         throw new \LogicException('2 * 3 !== 6');

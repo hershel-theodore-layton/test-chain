@@ -2,7 +2,7 @@
 namespace HTL\TestChain;
 
 use namespace HH\Lib\{C, Dict};
-use type FunctionCredential, Throwable;
+use type Throwable;
 use function HTL\Pragma\pragma;
 
 final class TestChain implements Chain {
@@ -17,8 +17,8 @@ final class TestChain implements Chain {
     return new TestChain('unnamed group', dict[]);
   }
 
-  public function group(FunctionCredential $group)[]: this {
-    return new static($group->getFunctionName(), $this->tests);
+  public function group(string $group)[]: this {
+    return new static($group, $this->tests);
   }
 
   public async function runTestsAsync(
