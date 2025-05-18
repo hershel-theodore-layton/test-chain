@@ -8,7 +8,9 @@ use namespace HTL\TestChain;
 function my_test(TestChain\Chain $chain)[]: TestChain\Chain {
   return $chain->group(__FUNCTION__)
     ->test('addition', () ==> {
-      throw new \RuntimeException('not implementetd');
+      if (2 + 1 !== 3) {
+        throw new \LogicException('2 + 1 !== 3');
+      }
     });
 }
 
@@ -21,7 +23,9 @@ async function my_test_async(
 
   return $chain->group(__FUNCTION__)
     ->test('subtraction', () ==> {
-      throw new \RuntimeException('not implemented async');
+      if (2 - 1 !== 1) {
+        throw new \LogicException('2 - 1 !== 1');
+      }
     });
 }
 
