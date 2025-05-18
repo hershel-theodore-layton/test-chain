@@ -90,12 +90,10 @@ final class Cli {
         await $this->fileGetContentsAsync($file_info->getPathname())
         |> Str\split($$, "\n")
         |> static::parseTestsFromFile($file_info->getPathname(), $$)
-        |> Vec\sort_by(
-          $$,
-          $x ==> Str\lowercase($x['namespace'].'__'.$x['name']),
-        ),
+        |> vec($$),
     )
       |> Vec\flatten($$)
+      |> Vec\sort_by($$, $x ==> Str\lowercase($x['namespace'].'__'.$x['name']))
       |> Vec\map(
         $$,
         $test ==> $test['is_async']
