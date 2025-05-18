@@ -45,18 +45,28 @@ final class ChainController<T as Chain> {
   }
 
   public function getBasicProgressReporter()[]: (function(
+    TestSuiteProgress,
     TestGroupResult,
   )[defaults]: Awaitable<void>) {
-    return async ($result)[defaults] ==> {
+    return async ($progress, $result)[defaults] ==> {
       $err = IO\request_error() ?? IO\request_output();
 
       if ($result->isSuccess()) {
-        await $err->writeAllAsync(Str\format("P: %s\n", $result->getName()));
+        await $err->writeAllAsync(
+          Str\format(
+            "\33[2K\r(%04d / %04d) Pass: %s",
+            $progress['number_of_tests_ran'],
+            $progress['total_number_of_tests'],
+            $result->getName(),
+          ),
+        );
         return;
       }
 
       await $err->writeAllAsync(Str\format(
-        "F: %s (%d) tests failed\n%s\n---\n",
+        "\33[2K\r(%04d / %04d) Fail: %s (%d tests)\n%s\n---\n",
+        $progress['number_of_tests_ran'],
+        $progress['total_number_of_tests'],
         $result->getName(),
         C\count($result->getFailures()),
         Vec\map(
@@ -86,7 +96,10 @@ final class ChainController<T as Chain> {
   }
 
   public async function runAllAsync(
-    (function(TestGroupResult)[defaults]: Awaitable<void>) $callback,
+    (function(
+      TestSuiteProgress,
+      TestGroupResult,
+    )[defaults]: Awaitable<void>) $callback,
   )[defaults]: Awaitable<TestSuiteResult> {
     if ($this->options['parallel_groups']) {
       return
@@ -97,23 +110,36 @@ final class ChainController<T as Chain> {
   }
 
   public async function runInParallelAsync(
-    (function(TestGroupResult)[defaults]: Awaitable<void>) $callback,
+    (function(
+      TestSuiteProgress,
+      TestGroupResult,
+    )[defaults]: Awaitable<void>) $callback,
   )[defaults]: Awaitable<vec<TestGroupResult>> {
+    $progress = new _Private\Box(test_suite_progress_create());
+    $progress->value['total_number_of_tests'] = C\count($this->chainFuncs);
+
     return await Vec\map_async(
       $this->chainFuncs,
       async $f ==> {
         $chain = await $f();
         $result = await $chain->runTestsAsync($this->options);
-        await $callback($result);
+        $progress->value['number_of_tests_ran']++;
+        await $callback($progress->value, $result);
         return $result;
       },
     );
   }
 
   public async function runInSeriesAsync(
-    (function(TestGroupResult)[defaults]: Awaitable<void>) $callback,
+    (function(
+      TestSuiteProgress,
+      TestGroupResult,
+    )[defaults]: Awaitable<void>) $callback,
   )[defaults]: Awaitable<vec<TestGroupResult>> {
     $results = vec[];
+
+    $progress = test_suite_progress_create();
+    $progress['total_number_of_tests'] = C\count($this->chainFuncs);
 
     // Running in series, await in a loop, you get what you desired...
     foreach ($this->chainFuncs as $f) {
@@ -121,8 +147,9 @@ final class ChainController<T as Chain> {
       $chain = await $f();
       pragma('PhaLinters', 'fixme:dont_await_in_a_loop');
       $result = await $chain->runTestsAsync($this->options);
+      $progress['number_of_tests_ran']++;
       pragma('PhaLinters', 'fixme:dont_await_in_a_loop');
-      await $callback($result);
+      await $callback($progress, $result);
       $results[] = $result;
     }
 

@@ -16,6 +16,8 @@ async function run_tests_async()[defaults]: Awaitable<void> {
   if ($result->isSuccess()) {
     await $output->writeAllAsync("\nNo errors!\n");
     return;
+  } else {
+    await $output->writeAllAsync("\nTests failed!\n");
   }
 
   exit(1);
