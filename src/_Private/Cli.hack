@@ -158,7 +158,7 @@ async function run_tests_async()[defaults]: Awaitable<void> {
     await $output->writeAllAsync("\nNo errors!\n");
     return;
   }
-  
+
   await $output->writeAllAsync("\nTests failed!\n");
   exit(1);
 }
