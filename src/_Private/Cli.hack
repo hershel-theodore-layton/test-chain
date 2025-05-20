@@ -116,9 +116,10 @@ namespace __NAMESPACE__;
 
 use namespace HTL\TestChain;
 
-async function tests_async(
-)[defaults]: Awaitable<TestChain\ChainController<TestChain\Chain>> {
-  return TestChain\ChainController::create(TestChain\TestChain::create<>)
+async function tests_async<T as TestChain\Chain>(
+  TestChain\ChainController<T> $controller
+)[defaults]: Awaitable<TestChain\ChainController<T>> {
+  return $controller
 __TESTS__;
 }
 
@@ -143,12 +144,15 @@ namespace __NAMESPACE__;
 
 use namespace HH;
 use namespace HH\Lib\{IO, Vec};
+use namespace HTL\TestChain;
 
 <<__DynamicallyCallable, __EntryPoint>>
 async function run_tests_async()[defaults]: Awaitable<void> {
   $_argv = HH\global_get('argv') as Container<_>
     |> Vec\map($$, $x ==> $x as string);
-  $tests = await tests_async();
+  $tests = await tests_async(
+    TestChain\ChainController::create(TestChain\TestChain::create<>)
+  );
   $result = await $tests
     ->withParallelGroupExecution()
     ->runAllAsync($tests->getBasicProgressReporter());

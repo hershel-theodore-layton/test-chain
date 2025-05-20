@@ -29,7 +29,7 @@ final class ChainController<T as Chain> {
   }
 
   public function addTestGroup(
-    (function(T)[defaults]: T) $registation,
+    (function(T)[defaults]: Chain) $registation,
   )[defaults]: this {
     $this->chainFuncs[] = async () ==>
       $registation(($this->createChain)($registation));
@@ -37,7 +37,7 @@ final class ChainController<T as Chain> {
   }
 
   public function addTestGroupAsync(
-    (function(T)[defaults]: Awaitable<T>) $registation,
+    (function(T)[defaults]: Awaitable<Chain>) $registation,
   )[defaults]: this {
     $this->chainFuncs[] = async () ==>
       await $registation(($this->createChain)($registation));
