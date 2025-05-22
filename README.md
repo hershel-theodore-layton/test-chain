@@ -4,6 +4,8 @@ _Inferred types for your tests, just append._
 
 This package was written to replace [HackTest](https://github.com/hhvm/hacktest).
 
+This package is enjoyed best with an assertion library, such as [expect](https://github.com/hershel-theodore-layton/expect).
+
 ## Usage
 
 Create a `tests/` directory at the root of your project (next to `vendor/`).
@@ -37,7 +39,7 @@ tests using `hhvm tests/run.hack`. You can combine these steps with
 
 ```
 (0001 / 0001) Fail: YourNamespace\my_test (1 tests)
-  - addition: notimplemented
+  - addition: not implemented
 ---
 
 Tests failed!
@@ -71,3 +73,14 @@ When running in CI, you don't want to suddenly discover new tests. If that
 were allowed, the tests you see in git and what runs in CI wouldn't be the same.
 By passing `--ci` to `vendor/bin/test-chain`, you assert the chain.hack file
 was correct and invoke the tests in the same way as with `--run`.
+
+## Upgrades and compatibility
+
+When the codegen for `chain.hack` changes, all invocations with `--ci` will fail.
+Running without `--ci` will regenerate this file and further invocations of
+`--ci` will not fail. If a change to `chain.hack` makes the call in `run.hack`
+you can regen it with `--update`. Your custom change will have to be reapplied.
+If none of that  works, `--reset` will treat your project as a brand new
+project, keeping the license comment and the namespace the same for convenience.
+
+These breakages in codegen will **not** require a major version bump.

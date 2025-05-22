@@ -4,22 +4,30 @@ namespace HTL\TestChain\_Private;
 use namespace HH;
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
 use type Exception, RecursiveDirectoryIterator, SplFileInfo;
-use function dirname, is_dir, mkdir;
-use const PHP_EOL;
+use function dirname, is_dir, mkdir, unlink;
 
 final class Cli {
   const type TFunction =
     shape('is_async' => bool, 'namespace' => string, 'name' => string /*_*/);
   private string $configPath;
   private bool $isDryRun;
+  private bool $printHelp;
+  private bool $printHelpExtended;
+  private bool $reset;
   private bool $runTests;
+  private bool $update;
 
   public function __construct(
     private string $workingDirectory,
     vec<string> $argv,
   )[] {
     $this->isDryRun = C\contains($argv, '--ci');
+    $this->printHelp = C\contains($argv, '--help');
+    $this->printHelpExtended =
+      C\contains($argv, '--help-ext') || C\contains($argv, '--man');
+    $this->reset = C\contains($argv, '--reset');
     $this->runTests = $this->isDryRun || C\contains($argv, '--run');
+    $this->update = $this->reset || C\contains($argv, '--update');
     $this->configPath = $this->workingDirectory.'/tests/test-chain/config.json';
   }
 
@@ -28,55 +36,66 @@ final class Cli {
     vec<string> $argv,
   )[defaults]: Awaitable<void> {
     $self = new static($working_directory, $argv);
-    return await $self->runAsync();
+    try {
+      return await $self->runAsync();
+    } catch (Exception $e) {
+      echo $e->getMessage();
+      exit(1);
+    }
   }
 
   private async function runAsync()[defaults]: Awaitable<void> {
-    $config = await $this->runInitialSetupAsync();
-    await static::terminateOnErrorAsync(
-      () ==> $this->runWriteChainAsync($config),
-    );
+    if ($this->printHelpExtended) {
+      echo HELP_EXTENDED;
+    }
+
+    if ($this->printHelp) {
+      echo HELP;
+      return;
+    }
+
+    $config = await $this->readConfigAsync();
+
+    if ($this->update) {
+      unlink($config->getChainDotHackPath($this->workingDirectory));
+      unlink($config->getRunDotHackPath($this->workingDirectory));
+    }
+
+    if ($this->reset) {
+      $config->resetToDefaultsKeepCommonOverrides();
+    }
+
+    concurrent {
+      await $this->runWriteChainAsync($config);
+      await $this->runWriteRunDotHackAsync($config);
+    }
+
     if ($this->runTests) {
       $entrypoint = $config->getNamespace().'\\run_tests_async';
       await HH\dynamic_fun($entrypoint)();
     }
+
+    await $this->filePutContentsAsync($this->configPath, $config->toJson());
   }
 
-  private async function runInitialSetupAsync()[defaults]: Awaitable<Config> {
+  private async function readConfigAsync()[defaults]: Awaitable<Config> {
     try {
       $config_text = await $this->fileGetContentsAsync($this->configPath);
-      return
-        static::terminateOnError(() ==> Config::fromContents($config_text));
+      return Config::fromContents($config_text);
     } catch (OS\NotFoundException $_) {
       $config_dir = dirname($this->configPath);
       if (!is_dir($config_dir)) {
         mkdir($config_dir);
       }
+      return Config::getDefault();
     }
-
-    $config = Config::getDefault();
-    await static::terminateOnErrorAsync(async () ==> {
-      concurrent {
-        await $this->filePutContentsAsync($this->configPath, $config->toJson());
-        await $this->runWriteChainAsync($config);
-        await $this->runWriteRunDotHackAsync($config);
-      }
-    });
-
-    echo Str\format(
-      "Wrote initial setup. You can edit these to your liking:\n\t%s\n\t%s\n".
-      "Open Source software projects should edit config.json:license_comment.\n",
-      $this->configPath,
-      $config->getRunDotHackPath($this->workingDirectory),
-    );
-    exit(1);
   }
 
   private async function runWriteChainAsync(
     Config $config,
   )[defaults]: Awaitable<void> {
     $test_files = new RecursiveDirectoryIterator(
-      $config->getTestDir($this->workingDirectory),
+      $this->workingDirectory.'/tests',
       RecursiveDirectoryIterator::SKIP_DOTS,
     )
       |> Vec\filter(
@@ -116,9 +135,9 @@ namespace __NAMESPACE__;
 
 use namespace HTL\TestChain;
 
-async function tests_async<T as TestChain\Chain>(
-  TestChain\ChainController<T> $controller
-)[defaults]: Awaitable<TestChain\ChainController<T>> {
+async function tests_async(
+  TestChain\ChainController<__CHAIN_TYPE__> $controller
+)[defaults]: Awaitable<TestChain\ChainController<__CHAIN_TYPE__>> {
   return $controller
 __TESTS__;
 }
@@ -128,6 +147,7 @@ HACK;
     await $this->filePutContentsAsync(
       $config->getChainDotHackPath($this->workingDirectory),
       Str\replace_every($contents, dict[
+        '__CHAIN_TYPE__' => $config->getChainType(),
         '__LICENSE_COMMENT__' => $config->getLicenseComment(),
         '__NAMESPACE__' => $config->getNamespace(),
         '__TESTS__' => $tests,
@@ -146,6 +166,8 @@ use namespace HH;
 use namespace HH\Lib\{IO, Vec};
 use namespace HTL\TestChain;
 
+// The initial stub was generated with vendor/bin/test-chain.
+// It is now yours to edit and customize.
 <<__DynamicallyCallable, __EntryPoint>>
 async function run_tests_async()[defaults]: Awaitable<void> {
   $_argv = HH\global_get('argv') as Container<_>
@@ -255,26 +277,37 @@ HACK;
     using $file->tryLockx(File\LockType::EXCLUSIVE);
     await $file->writeAllAsync($contents);
   }
-
-  private static function terminateOnError<T>(
-    (function()[defaults]: T) $func,
-  )[defaults]: T {
-    try {
-      return $func();
-    } catch (Exception $e) {
-      echo $e->getMessage().PHP_EOL;
-      exit(1);
-    }
-  }
-
-  private static async function terminateOnErrorAsync<T>(
-    (function()[defaults]: Awaitable<T>) $func,
-  )[defaults]: Awaitable<T> {
-    try {
-      return await $func();
-    } catch (Exception $e) {
-      echo $e->getMessage().PHP_EOL;
-      exit(1);
-    }
-  }
 }
+
+const string HELP = <<<'HELP'
+Usage: vendor/bin/test-chain <flags>
+Command reference:
+ no flags   | Initialize if unintialized, do nothing else.
+ --run      | Discover new tests, then invoke tests.
+ --ci       | Assert codegen is up to date, then invoke tests.
+ --help     | Print this help menu.
+ --man      | Print the manual.
+ --help-ext | An alias for `--man`.
+ --update   | Create a new run.hack, loses your customizations.
+ --reset    | Start fresh, will retain namespace and license header.
+HELP;
+
+const string HELP_EXTENDED = <<<'HELP'
+This is the test-chain CLI. This tool discovers tests marked with the
+<<TestChain\Discover>> attribute in your codebase. If you have never run
+this CLI before, it will create a new directory `tests/test-chain`. It will
+contain three files: `config.json`, `chain.hack`, `run.hack`. The `config.json`
+file may not be renamed or moved. The `chain.hack` is not meant to be edited
+and is generated anew every run. `run.hack` is yours to own and edit. You
+can customize the output and use your own implementation of the `TestChain`
+type. The discovery tool searches for test functions line by line, and assumes
+default hackfmt formatting. If your tests don't look like:
+
+<<TestChain\Discover>>
+function name()...
+or
+<<TestChain\Discover>>
+async function name()...
+
+they will not be discovered.
+HELP;
