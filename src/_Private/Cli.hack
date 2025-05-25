@@ -3,6 +3,7 @@ namespace HTL\TestChain\_Private;
 
 use namespace HH;
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
+use namespace HTL\HH4Shim;
 use type Exception, RecursiveDirectoryIterator, SplFileInfo;
 use function dirname, is_dir, mkdir, unlink;
 
@@ -100,7 +101,8 @@ final class Cli {
     )
       |> Vec\filter(
         $$,
-        $file_info ==> $file_info as SplFileInfo->getExtension() === 'hack',
+        $file_info ==> HH4Shim\to_mixed($file_info) as SplFileInfo
+          ->getExtension() === 'hack',
       );
 
     $tests = await Vec\map_async(
