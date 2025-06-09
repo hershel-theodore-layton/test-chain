@@ -8,7 +8,7 @@
     "hershel-theodore-layton/pragma": "<1"
   },
   "require-dev": {
-    "hershel-theodore-layton/portable-hack-ast-linters-server": "<1"
+    "hershel-theodore-layton/portable-hack-ast-linters-server": ">=0.3.4 <1"
   },
   "config": {
     "allow-plugins": {
