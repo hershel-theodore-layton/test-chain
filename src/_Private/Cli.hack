@@ -4,7 +4,7 @@ namespace HTL\TestChain\_Private;
 use namespace HH;
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
 use namespace HTL\HH4Shim;
-use type Exception, RecursiveDirectoryIterator, SplFileInfo;
+use type Exception, RecursiveDirectoryIterator, RecursiveIteratorIterator, SplFileInfo;
 use function dirname, is_dir, mkdir, unlink;
 
 final class Cli {
@@ -99,6 +99,7 @@ final class Cli {
       $this->workingDirectory.'/tests',
       RecursiveDirectoryIterator::SKIP_DOTS,
     )
+      |> new RecursiveIteratorIterator($$)
       |> Vec\filter(
         $$,
         $file_info ==> HH4Shim\to_mixed($file_info) as SplFileInfo
