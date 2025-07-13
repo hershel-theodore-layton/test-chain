@@ -87,7 +87,7 @@ If you want to run your tests in 0.05 seconds, you can host your tests as a
 web server. `hhvm -m server -p <%port%>` and curl
 `http://localhost:<%port%>/tests/test-chain/run.hack`. This will not crawl your
 tests directory for new test functions. Chained tests on existing functions
-will be found and run, but new `<<TestChain\\Discover>>` functions must be
+will be found and run, but new `<<TestChain\Discover>>` functions must be
 explicitly crawled for with the CLI script.
 
 ## Upgrades and compatibility
