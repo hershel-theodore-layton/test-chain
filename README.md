@@ -74,6 +74,22 @@ were allowed, the tests you see in git and what runs in CI wouldn't be the same.
 By passing `--ci` to `vendor/bin/test-chain`, you assert the chain.hack file
 was correct and invoke the tests in the same way as with `--run`.
 
+## Performance on small test suites
+
+By default hhvm will try to jit your tests as you run them, unless overriden in
+your global hhvm configuration. This is not helpful on most small test suites.
+`vendor/bin/test-chain-no-jit` behaves exactly like `vendor/bin/test-chain`, but
+invokes hhvm without the jit. This can shave of a second of your test execution
+time. It will run a test suite with a handful of fast tests in 0.5 seconds
+instead of 1.5 seconds.
+
+If you want to run your tests in 0.05 seconds, you can host your tests as a
+web server. `hhvm -m server -p <%port%>` and curl
+`http://localhost:<%port%>/tests/test-chain/run.hack`. This will not crawl your
+tests directory for new test functions. Chained tests on existing functions
+will be found and run, but new `<<TestChain\\Discover>>` functions must be
+explicitly crawled for with the CLI script.
+
 ## Upgrades and compatibility
 
 When the codegen for `chain.hack` changes, all invocations with `--ci` will fail.

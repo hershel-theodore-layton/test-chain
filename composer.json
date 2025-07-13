@@ -2,6 +2,7 @@
   "name": "hershel-theodore-layton/test-chain",
   "bin": [
     "bin/test-chain",
+    "bin/test-chain-no-jit",
     "bin/test-chain.hack"
   ],
   "description": "Inferred types for your tests, just append.",

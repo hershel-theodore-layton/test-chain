@@ -1,0 +1,9 @@
+#!/usr/bin/env -S hhvm -dhhvm.jit=0
+/** test-chain is MIT licensed, see /LICENSE. */
+namespace HTL\TestChain\_Private;
+
+<<__EntryPoint>>
+async function bin_wrapped_no_jit_async(): Awaitable<void> {
+  require_once(__DIR__.'/test-chain'.'.hack');
+  await bin_async();
+}
