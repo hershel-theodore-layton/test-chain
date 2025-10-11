@@ -2,7 +2,6 @@
 namespace HTL\TestChain\_Private;
 
 use namespace HH\Lib\{Dict, SecureRandom};
-use namespace HTL\HH4Shim;
 use type RuntimeException;
 use function json_decode_with_error, json_encode_with_error;
 use const JSON_FB_HACK_ARRAYS,
@@ -89,8 +88,6 @@ final class Config {
         return $json;
       }
     )();
-
-    $structure = HH4Shim\array_to_shape($structure);
 
     if (!$structure is this::TJson) {
       throw new RuntimeException(
