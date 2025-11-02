@@ -2,6 +2,7 @@
 namespace HTL\TestChain\_Private;
 
 use namespace HH;
+use namespace HTL\HH4Shim;
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
 use type Exception, RecursiveDirectoryIterator, RecursiveIteratorIterator;
 use function dirname, is_dir, mkdir, unlink;
@@ -103,10 +104,14 @@ final class Cli {
 
     $tests = await Vec\map_async(
       $test_files,
-      async $file_info ==>
-        await $this->fileGetContentsAsync($file_info->getPathname() as string)
+      async $file_info ==> await $this->fileGetContentsAsync(
+        HH4Shim\to_mixed($file_info->getPathname()) as string,
+      )
         |> Str\split($$, "\n")
-        |> static::parseTestsFromFile($file_info->getPathname() as string, $$)
+        |> static::parseTestsFromFile(
+          HH4Shim\to_mixed($file_info->getPathname()) as string,
+          $$,
+        )
         |> vec($$),
     )
       |> Vec\flatten($$)

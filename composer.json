@@ -9,7 +9,8 @@
   "license": "MIT",
   "require": {
     "hhvm": ">=4.153",
-    "hershel-theodore-layton/pragma": "<1"
+    "hershel-theodore-layton/pragma": "<1",
+    "hershel-theodore-layton/hhvm-four-shim": "<1"
   },
   "require-dev": {
     "hershel-theodore-layton/portable-hack-ast-linters-server": ">=0.3.4 <1"
