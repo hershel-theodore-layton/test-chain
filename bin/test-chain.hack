@@ -13,7 +13,7 @@ async function bin_async()[defaults]: Awaitable<void> {
   initialize_autoloader();
   $argv = \HH\global_get('argv') as Container<_> |> Vec\map($$, $x ==> $x as string);
 
-  $cwd = getcwd();
+  $cwd = getcwd() as string;
   $hhconfig = $cwd.'/.hhconfig';
 
   if (
@@ -65,7 +65,7 @@ function initialize_autoloader()[defaults]: void {
     }
 
     $last_dir = $dir;
-    $dir = dirname($dir);
+    $dir = dirname($dir) as string;
   } while ($last_dir !== $dir);
 
   echo

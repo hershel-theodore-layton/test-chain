@@ -57,7 +57,7 @@ final class Config {
       $this->json,
       inout $_error,
       JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
-    );
+    ) as string;
   }
 
   public function resetToDefaultsKeepCommonOverrides()[write_props]: void {

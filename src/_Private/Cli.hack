@@ -83,7 +83,7 @@ final class Cli {
       $config_text = await $this->fileGetContentsAsync($this->configPath);
       return Config::fromContents($config_text);
     } catch (OS\NotFoundException $_) {
-      $config_dir = dirname($this->configPath);
+      $config_dir = dirname($this->configPath) as string;
       if (!is_dir($config_dir)) {
         mkdir($config_dir);
       }
@@ -104,9 +104,9 @@ final class Cli {
     $tests = await Vec\map_async(
       $test_files,
       async $file_info ==>
-        await $this->fileGetContentsAsync($file_info->getPathname())
+        await $this->fileGetContentsAsync($file_info->getPathname() as string)
         |> Str\split($$, "\n")
-        |> static::parseTestsFromFile($file_info->getPathname(), $$)
+        |> static::parseTestsFromFile($file_info->getPathname() as string, $$)
         |> vec($$),
     )
       |> Vec\flatten($$)
