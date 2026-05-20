@@ -66,9 +66,17 @@ final class Cli {
       $config->resetToDefaultsKeepCommonOverrides();
     }
 
+    $run_dot_hack_writer = () ==> {
+      if (\file_exists($config->getRunDotHackPath($this->workingDirectory))) {
+        return null;
+      }
+
+      return $this->runWriteRunDotHackAsync($config);
+    };
+
     concurrent {
       await $this->runWriteChainAsync($config);
-      await $this->runWriteRunDotHackAsync($config);
+      await $run_dot_hack_writer();
     }
 
     if ($this->runTests) {

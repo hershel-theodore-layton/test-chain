@@ -21,6 +21,8 @@ async function run_tests_async()[defaults]: Awaitable<void> {
     return;
   }
 
+  // Customization for testing CLI.
+
   await $output->writeAllAsync("\nTests failed!\n");
   exit(1);
 }
