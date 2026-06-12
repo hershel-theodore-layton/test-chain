@@ -8,6 +8,10 @@ use namespace HTL\TestChain;
 // It is now yours to edit and customize.
 <<__DynamicallyCallable, __EntryPoint>>
 async function run_tests_async()[defaults]: Awaitable<void> {
+  await invoke_tests_async();
+}
+
+async function invoke_tests_async()[defaults]: Awaitable<void> {
   $tests = await tests_async(
     TestChain\ChainController::create(TestChain\TestChain::create<>)
   );
