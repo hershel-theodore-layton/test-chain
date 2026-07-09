@@ -81,7 +81,7 @@ final class Cli {
 
     if ($this->runTests) {
       $entrypoint = $config->getNamespace().'\\run_tests_async';
-      await HH\dynamic_fun($entrypoint)();
+      await (new \ReflectionFunction($entrypoint) |> $$->invoke());
     }
 
     await $this->filePutContentsAsync($this->configPath, $config->toJson());
@@ -92,7 +92,7 @@ final class Cli {
       $config_text = await $this->fileGetContentsAsync($this->configPath);
       return Config::fromContents($config_text);
     } catch (OS\NotFoundException $_) {
-      $config_dir = dirname($this->configPath) as string;
+      $config_dir = dirname($this->configPath);
       if (!is_dir($config_dir)) {
         mkdir($config_dir);
       }

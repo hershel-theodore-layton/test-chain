@@ -11,7 +11,8 @@ use const PHP_EOL;
 <<__EntryPoint>>
 async function bin_async()[defaults]: Awaitable<void> {
   initialize_autoloader();
-  $argv = \HH\global_get('argv') as Container<_> |> Vec\map($$, $x ==> $x as string);
+  $argv =
+    \HH\global_get('argv') as Container<_> |> Vec\map($$, $x ==> $x as string);
 
   $cwd = getcwd() as string;
   $hhconfig = $cwd.'/.hhconfig';
@@ -45,7 +46,8 @@ function initialize_autoloader()[defaults]: void {
 
   $invoke_autoloader = () ==> {
     try {
-      HH\dynamic_fun('Facebook\\AutoloadMap\\initialize')();
+      new \ReflectionFunction('Facebook\\AutoloadMap\\initialize')
+      |> $$->invoke();
     } catch (InvalidArgumentException $e) {
       echo $e->getMessage();
       exit(1);
@@ -65,7 +67,7 @@ function initialize_autoloader()[defaults]: void {
     }
 
     $last_dir = $dir;
-    $dir = dirname($dir) as string;
+    $dir = dirname($dir);
   } while ($last_dir !== $dir);
 
   echo
