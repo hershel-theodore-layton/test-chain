@@ -1,8 +1,9 @@
 /** test-chain is MIT licensed, see /LICENSE. */
 namespace HTL\TestChain\_Private;
 
-use namespace HTL\HH4Shim;
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
+use namespace HTL\HH4Shim;
+use type HTL\TestChain\Invoker;
 use type Exception, RecursiveDirectoryIterator, RecursiveIteratorIterator;
 use function dirname, is_dir, mkdir, unlink;
 
@@ -79,8 +80,12 @@ final class Cli {
     }
 
     if ($this->runTests) {
-      $entrypoint = $config->getNamespace().'\\run_tests_async';
-      await (new \ReflectionFunction($entrypoint) |> $$->invoke());
+      $awaitable = $config->getNamespace().'\\Invoker'
+        |> new \ReflectionClass($$)
+        |> $$->newInstanceWithoutConstructor()
+        |> $$ as Invoker
+        |> $$->invokeAsync();
+      await $awaitable;
     }
 
     await $this->filePutContentsAsync($this->configPath, $config->toJson());
@@ -178,14 +183,15 @@ use namespace HTL\TestChain;
 
 // The initial stub was generated with vendor/bin/test-chain.
 // It is now yours to edit and customize.
-<<__DynamicallyCallable, __EntryPoint>>
-async function run_tests_async()[defaults]: Awaitable<void> {
-  await invoke_tests_async();
+final class Invoker implements TestChain\Invoker {
+  public async function invokeAsync()[defaults]: Awaitable<void> {
+    await invoke_tests_async();
+  }
 }
 
 async function invoke_tests_async()[defaults]: Awaitable<void> {
   $tests = await tests_async(
-    TestChain\ChainController::create(TestChain\TestChain::create<>)
+    TestChain\ChainController::create(TestChain\TestChain::create<>),
   );
   $result = await $tests
     ->withParallelGroupExecution()
