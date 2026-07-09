@@ -91,7 +91,8 @@ final class Cli {
       $config_text = await $this->fileGetContentsAsync($this->configPath);
       return Config::fromContents($config_text);
     } catch (OS\NotFoundException $_) {
-      $config_dir = dirname($this->configPath);
+      $config_dir =
+        dirname($this->configPath) |> HH4Shim\to_mixed($$) as string;
       if (!is_dir($config_dir)) {
         mkdir($config_dir);
       }

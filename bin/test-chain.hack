@@ -4,6 +4,7 @@ namespace HTL\TestChain\_Private;
 
 use namespace HH;
 use namespace HH\Lib\{C, Vec};
+use namespace HTL\HH4Shim;
 use type InvalidArgumentException;
 use function dirname, file_exists, getcwd;
 use const PHP_EOL;
@@ -67,7 +68,7 @@ function initialize_autoloader()[defaults]: void {
     }
 
     $last_dir = $dir;
-    $dir = dirname($dir);
+    $dir = dirname($dir) |> HH4Shim\to_mixed($$) as string;
   } while ($last_dir !== $dir);
 
   echo
