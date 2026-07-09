@@ -1,7 +1,6 @@
 /** test-chain is MIT licensed, see /LICENSE. */
 namespace HTL\TestChain\_Private;
 
-use namespace HH;
 use namespace HTL\HH4Shim;
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
 use type Exception, RecursiveDirectoryIterator, RecursiveIteratorIterator;
