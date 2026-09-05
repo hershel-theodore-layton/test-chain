@@ -5,7 +5,7 @@ use type Throwable;
 
 interface TestResult {
   /**
-   * @throws If you invoke this on `->isSuccess()` true.
+   * @throws If you invoke this when `->isSuccess()` is true.
    */
   public function getFailure()[]: Throwable;
   public function getName()[]: string;

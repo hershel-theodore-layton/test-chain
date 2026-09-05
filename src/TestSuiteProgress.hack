@@ -3,7 +3,7 @@ namespace HTL\TestChain;
 
 /**
  * Please instantiate with `test_suite_progress_create`.
- * New fields required fields will be added in the future.
+ * New required fields will be added in the future.
  * Code that created this shape manually would break.
  * This is not considered a breaking change, because of this note.
  */

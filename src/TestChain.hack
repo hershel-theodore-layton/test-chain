@@ -166,7 +166,7 @@ final class TestChain implements Chain {
 
       foreach ($data as $key => $params) {
         try {
-          // This would be a very high degree of parallalism that is not
+          // This would be a very high degree of parallelism that is not
           // likely to be useful on large projects. We are still running
           // on a single thread after all.
           pragma('PhaLinters', 'fixme:dont_await_in_a_loop');

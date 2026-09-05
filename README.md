@@ -9,10 +9,10 @@ This package is enjoyed best with an assertion library, such as [expect](https:/
 ## Usage
 
 Create a `tests/` directory at the root of your project (next to `vendor/`).
-This package ships with a `bin/test-chain` script. Do not pass any command line 
+This package ships with a `bin/test-chain` script. Do not pass any command line
 arguments to this script.
 
-This script will create a json file at `tests/test-chain/config.json`. The
+This script will create a JSON file at `tests/test-chain/config.json`. The
 defaults will likely suffice, but you can change the configuration to your
 liking. The `tests/run.hack` file template is meant for you to customize, and
 allows you to do setup work before running the tests.
@@ -46,7 +46,7 @@ Tests failed!
 ```
 
 It is common to want to execute the same test with multiple values. This is
-called a data-provider test. Here is an example of a such a test:
+called a data-provider test. Here is an example of such a test:
 
 ```HACK
 <<TestChain\Discover>>
@@ -76,10 +76,10 @@ was correct and invoke the tests in the same way as with `--run`.
 
 ## Performance on small test suites
 
-By default hhvm will try to jit your tests as you run them, unless overriden in
-your global hhvm configuration. This is not helpful on most small test suites.
+By default, HHVM will try to JIT your tests as you run them, unless overridden in
+your global HHVM configuration. This is not helpful on most small test suites.
 `vendor/bin/test-chain-no-jit` behaves exactly like `vendor/bin/test-chain`, but
-invokes hhvm without the jit. This can shave of a second of your test execution
+invokes hhvm without the JIT. This can shave off a second of your test execution
 time. It will run a test suite with a handful of fast tests in 0.5 seconds
 instead of 1.5 seconds.
 
@@ -94,9 +94,9 @@ explicitly crawled for with the CLI script.
 
 When the codegen for `chain.hack` changes, all invocations with `--ci` will fail.
 Running without `--ci` will regenerate this file and further invocations of
-`--ci` will not fail. If a change to `chain.hack` makes the call in `run.hack`
-you can regen it with `--update`. Your custom change will have to be reapplied.
-If none of that  works, `--reset` will treat your project as a brand new
+`--ci` will not fail. If a change to `chain.hack` breaks the call in `run.hack`,
+you can regenerate it with `--update`. Your custom change will have to be reapplied.
+If none of that works, `--reset` will treat your project as a brand-new
 project, keeping the license comment and the namespace the same for convenience.
 
 These breakages in codegen will **not** require a major version bump.

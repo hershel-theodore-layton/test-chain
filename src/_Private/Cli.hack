@@ -300,13 +300,13 @@ HACK;
 const string HELP = <<<'HELP'
 Usage: vendor/bin/test-chain <flags>
 Command reference:
- no flags   | Initialize if unintialized, do nothing else.
+ no flags   | Initialize if uninitialized, do nothing else.
  --run      | Discover new tests, then invoke tests.
  --ci       | Assert codegen is up to date, then invoke tests.
  --help     | Print this help menu.
  --man      | Print the manual.
  --help-ext | An alias for `--man`.
- --update   | Create a new run.hack, loses your customizations.
+ --update   | Create a new run.hack; this loses your customizations.
  --reset    | Start fresh, will retain namespace and license header.
 HELP;
 
