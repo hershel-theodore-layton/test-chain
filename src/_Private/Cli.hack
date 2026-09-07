@@ -3,9 +3,21 @@ namespace HTL\TestChain\_Private;
 
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
 use namespace HTL\HH4Shim;
+use type Exception,
+  InvalidOperationException,
+  RecursiveDirectoryIterator,
+  RecursiveIteratorIterator,
+  ReflectionClass;
 use type HTL\TestChain\Invoker;
-use type Exception, RecursiveDirectoryIterator, RecursiveIteratorIterator;
-use function dirname, is_dir, mkdir, unlink;
+use function dirname,
+  escapeshellarg,
+  exec,
+  file_exists,
+  is_dir,
+  mkdir,
+  sys_get_temp_dir,
+  tempnam,
+  unlink;
 
 final class Cli {
   const type TFunction =
@@ -67,7 +79,7 @@ final class Cli {
     }
 
     $run_dot_hack_writer = () ==> {
-      if (\file_exists($config->getRunDotHackPath($this->workingDirectory))) {
+      if (file_exists($config->getRunDotHackPath($this->workingDirectory))) {
         return null;
       }
 
@@ -81,7 +93,7 @@ final class Cli {
 
     if ($this->runTests) {
       $awaitable = $config->getNamespace().'\\Invoker'
-        |> new \ReflectionClass($$)
+        |> new ReflectionClass($$)
         |> $$->newInstanceWithoutConstructor()
         |> $$ as Invoker
         |> $$->invokeAsync();
@@ -150,6 +162,9 @@ __LICENSE_COMMENT__
 namespace __NAMESPACE__;
 
 use namespace HTL\TestChain;
+use type HTL\Pragma\Pragmas;
+
+<<file: Pragmas(vec['PhaLinters', 'digest:'])>>
 
 async function tests_async(
   TestChain\ChainController<__CHAIN_TYPE__> $controller,
@@ -162,13 +177,41 @@ HACK;
 
     await $this->filePutContentsAsync(
       $config->getChainDotHackPath($this->workingDirectory),
-      Str\replace_every($contents, dict[
+      await $this->signCodeAsync(Str\replace_every($contents, dict[
         '__CHAIN_TYPE__' => $config->getChainType(),
         '__LICENSE_COMMENT__' => $config->getLicenseComment(),
         '__NAMESPACE__' => $config->getNamespace(),
         '__TESTS__' => $tests,
-      ]),
+      ])),
     );
+  }
+
+  private async function signCodeAsync(
+    string $code,
+  )[defaults]: Awaitable<string> {
+    $path = tempnam(sys_get_temp_dir() as string, 'test-chain-') as string;
+    try {
+      $file = File\open_write_only($path, File\WriteMode::TRUNCATE);
+      using ($file->closeWhenDisposed()) {
+        await $file->writeAllAsync($code);
+      }
+      $output = vec[];
+      $status = 0;
+      exec(
+        escapeshellarg(
+          $this->workingDirectory.
+          '/vendor/hershel-theodore-layton/portable-hack-ast-linters-server/bin/pha-sign-hack-source.sh',
+        ).
+        ' '.
+        escapeshellarg($path),
+        inout $output,
+        inout $status,
+      );
+      invariant($status === 0, 'Could not sign generated test chain');
+      return await $this->fileGetContentsAsync($path);
+    } finally {
+      unlink($path);
+    }
   }
 
   private async function runWriteRunDotHackAsync(
@@ -248,7 +291,7 @@ HACK;
           'name' => $snip_function_name($l),
         );
       } else if ($is_test_line) {
-        throw new \InvalidOperationException(Str\format(
+        throw new InvalidOperationException(Str\format(
           "Expected to find a test function on line %d of %s.\n",
           $i + 1,
           $file_name,

@@ -3,13 +3,14 @@ namespace HTL\TestChain\SomeProject;
 
 use namespace HH\Asio;
 use namespace HTL\TestChain;
+use type LogicException;
 
 <<TestChain\Discover>>
 function my_test(TestChain\Chain $chain)[]: TestChain\Chain {
   return $chain->group(__FUNCTION__)
     ->test('addition', () ==> {
       if (2 + 1 !== 3) {
-        throw new \LogicException('2 + 1 !== 3');
+        throw new LogicException('2 + 1 !== 3');
       }
     });
 }
@@ -24,7 +25,7 @@ async function my_test_async(
   return $chain->group(__FUNCTION__)
     ->test('subtraction', () ==> {
       if (2 - 1 !== 1) {
-        throw new \LogicException('2 - 1 !== 1');
+        throw new LogicException('2 - 1 !== 1');
       }
     });
 }
@@ -34,7 +35,7 @@ function passing_test(TestChain\Chain $chain)[]: TestChain\Chain {
   return $chain->group(__FUNCTION__)
     ->test('multiplication', () ==> {
       if (2 * 3 !== 6) {
-        throw new \LogicException('2 * 3 !== 6');
+        throw new LogicException('2 * 3 !== 6');
       }
     })
     ->testWith3ParamsAsync(
@@ -45,7 +46,7 @@ function passing_test(TestChain\Chain $chain)[]: TestChain\Chain {
       ],
       async ($a, $b, $expected) ==> {
         if ($a / $b !== $expected) {
-          throw new \LogicException('math broke');
+          throw new LogicException('math broke');
         }
       },
     );
