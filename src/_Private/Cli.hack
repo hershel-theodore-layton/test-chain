@@ -9,7 +9,8 @@ use type Exception,
   RecursiveIteratorIterator,
   ReflectionClass;
 use type HTL\TestChain\Invoker;
-use function dirname, escapeshellarg, exec, file_exists, is_dir, mkdir, unlink;
+use function HTL\PhaLintersServer\hackfmt_and_sign_hack_source_do_not_use_async;
+use function dirname, file_exists, is_dir, mkdir, unlink;
 
 final class Cli {
   const type TFunction =
@@ -167,39 +168,18 @@ __TESTS__;
 
 HACK;
 
-    $signed = await $this->signCodeAsync(Str\replace_every($contents, dict[
-      '__CHAIN_TYPE__' => $config->getChainType(),
-      '__LICENSE_COMMENT__' => $config->getLicenseComment(),
-      '__NAMESPACE__' => $config->getNamespace(),
-      '__TESTS__' => $tests,
-    ]));
+    $signed = await hackfmt_and_sign_hack_source_do_not_use_async(
+      Str\replace_every($contents, dict[
+        '__CHAIN_TYPE__' => $config->getChainType(),
+        '__LICENSE_COMMENT__' => $config->getLicenseComment(),
+        '__NAMESPACE__' => $config->getNamespace(),
+        '__TESTS__' => $tests,
+      ]),
+    );
     await $this->filePutContentsAsync(
       $config->getChainDotHackPath($this->workingDirectory),
       $signed,
     );
-  }
-
-  private async function signCodeAsync(
-    string $code,
-  )[defaults]: Awaitable<string> {
-    using $temporary_file = File\temporary_file();
-    $file = $temporary_file->getHandle();
-    await $file->writeAllAsync($code);
-    $output = vec[];
-    $status = 0;
-    exec(
-      escapeshellarg(
-        $this->workingDirectory.
-        '/vendor/hershel-theodore-layton/portable-hack-ast-linters-server/bin/pha-sign-hack-source.sh',
-      ).
-      ' '.
-      escapeshellarg($file->getPath()),
-      inout $output,
-      inout $status,
-    );
-    invariant($status === 0, 'Could not sign generated test chain');
-    $file->seek(0);
-    return await $file->readAllAsync();
   }
 
   private async function runWriteRunDotHackAsync(
