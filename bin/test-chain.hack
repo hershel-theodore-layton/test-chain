@@ -4,16 +4,18 @@ namespace HTL\TestChain\_Private;
 
 use namespace HH;
 use namespace HH\Lib\{C, Vec};
-use namespace HTL\HH4Shim;
-use type InvalidArgumentException;
+use type HTL\Pragma\Pragmas;
+use type InvalidArgumentException, ReflectionFunction;
 use function dirname, file_exists, getcwd;
 use const PHP_EOL;
+
+<<file: Pragmas(vec['PhaLinters', 'fixme:autoload_your_code'])>>
 
 <<__EntryPoint>>
 async function bin_async()[defaults]: Awaitable<void> {
   initialize_autoloader();
   $argv =
-    \HH\global_get('argv') as Container<_> |> Vec\map($$, $x ==> $x as string);
+    HH\global_get('argv') as Container<_> |> Vec\map($$, $x ==> $x as string);
 
   $cwd = getcwd() as string;
   $hhconfig = $cwd.'/.hhconfig';
@@ -47,7 +49,7 @@ function initialize_autoloader()[defaults]: void {
 
   $invoke_autoloader = () ==> {
     try {
-      new \ReflectionFunction('Facebook\\AutoloadMap\\initialize')
+      new ReflectionFunction('Facebook\\AutoloadMap\\initialize')
       |> $$->invoke();
     } catch (InvalidArgumentException $e) {
       echo $e->getMessage();
@@ -59,6 +61,8 @@ function initialize_autoloader()[defaults]: void {
 
   $dir = __DIR__;
   $last_dir = $dir;
+  // Dependencies are not available until we have found the autoloader.
+  $to_mixed = (mixed $value)[]: mixed ==> $value;
 
   do {
     if (HH\could_include($dir.$file)) {
@@ -68,7 +72,7 @@ function initialize_autoloader()[defaults]: void {
     }
 
     $last_dir = $dir;
-    $dir = dirname($dir) |> HH4Shim\to_mixed($$) as string;
+    $dir = dirname($dir) |> $to_mixed($$) as string;
   } while ($last_dir !== $dir);
 
   echo
