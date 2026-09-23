@@ -53,6 +53,7 @@ final class Cli {
   private async function runAsync()[defaults]: Awaitable<void> {
     if ($this->printHelpExtended) {
       echo HELP_EXTENDED;
+      return;
     }
 
     if ($this->printHelp) {
