@@ -33,8 +33,7 @@ function my_test(TestChain\Chain $chain)[]: TestChain\Chain {
 }
 ```
 
-You can discover your tests using `vendor/bin/test-chain`. You can run your
-tests using `hhvm tests/run.hack`. You can combine these steps with
+You can discover your tests using `vendor/bin/test-chain`. You can runs your tests with
 `vendor/bin/test-chain --run`. You should see this output.
 
 ```
