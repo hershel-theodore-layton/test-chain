@@ -243,7 +243,7 @@ HACK;
       |> $$ !== '' ? '\\'.$$ : '';
 
     $snip_function_name = $l ==> Str\split($l, 'function ', 2)[1]
-      |> Regex\first_match($$, re'/[a-z_][\w]+/i') as nonnull[0];
+      |> Regex\first_match($$, re'/^[a-z_]\w*/i') as nonnull[0];
 
     $is_test_line = false;
     foreach ($lines as $i => $l) {
