@@ -51,6 +51,12 @@ final class Cli {
   }
 
   private async function runAsync()[defaults]: Awaitable<void> {
+    if ($this->isDryRun && $this->update) {
+      throw new InvalidOperationException(
+        "Cannot combine --ci with --update or --reset.\n",
+      );
+    }
+
     if ($this->printHelpExtended) {
       echo HELP_EXTENDED;
       return;
@@ -102,6 +108,12 @@ final class Cli {
       $config_text = await $this->fileGetContentsAsync($this->configPath);
       return Config::fromContents($config_text);
     } catch (OS\NotFoundException $_) {
+      if ($this->isDryRun) {
+        throw new InvalidOperationException(
+          "Initialize test-chain before running --ci.\n",
+        );
+      }
+
       $config_dir =
         dirname($this->configPath) |> HH4Shim\to_mixed($$) as string;
       if (!is_dir($config_dir)) {
