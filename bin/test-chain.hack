@@ -5,7 +5,7 @@ namespace HTL\TestChain\_Private;
 use namespace HH;
 use namespace HH\Lib\{C, Vec};
 use type HTL\Pragma\Pragmas;
-use type InvalidArgumentException, ReflectionFunction;
+use type InvalidArgumentException;
 use function dirname, file_exists, getcwd;
 use const PHP_EOL;
 
@@ -49,8 +49,11 @@ function initialize_autoloader()[defaults]: void {
 
   $invoke_autoloader = () ==> {
     try {
-      new ReflectionFunction('Facebook\\AutoloadMap\\initialize')
-      |> $$->invoke();
+      // Abuse the poor typing of array_reduce to invoke a dynamic callable without hh_client noticing
+      \array_reduce(
+        vec[null],
+        HH\dynamic_fun('Facebook\AutoloadMap\initialize'),
+      );
     } catch (InvalidArgumentException $e) {
       echo $e->getMessage();
       exit(1);
