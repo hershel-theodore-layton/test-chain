@@ -138,6 +138,7 @@ final class Cli {
       async $file_info ==> await $this->fileGetContentsAsync(
         HH4Shim\to_mixed($file_info->getPathname()) as string,
       )
+        |> Str\replace($$, "\r\n", "\n")
         |> Str\split($$, "\n")
         |> static::parseTestsFromFile(
           HH4Shim\to_mixed($file_info->getPathname()) as string,
