@@ -3,10 +3,16 @@
 set -eu
 
 snapshot=$(mktemp -d)
-trap 'cp "$snapshot/chain.hack" tests/test-chain/chain.hack; rm -rf "$snapshot"' EXIT
 cp tests/test-chain/chain.hack "$snapshot/chain.hack"
 cp tests/test-chain/run.hack "$snapshot/run.hack"
 cp tests/test-chain/config.json "$snapshot/config.json"
+cleanup() {
+  cp "$snapshot/chain.hack" tests/test-chain/chain.hack
+  cp "$snapshot/run.hack" tests/test-chain/run.hack
+  cp "$snapshot/config.json" tests/test-chain/config.json
+  rm -rf "$snapshot"
+}
+trap cleanup EXIT
 mkdir -p .var
 
 run_cli() {
@@ -27,5 +33,15 @@ if run_cli --ci > "$snapshot/ci.log" 2>&1; then
 fi
 grep -q 'Codegen out of date' "$snapshot/ci.log"
 cmp "$snapshot/stale.hack" tests/test-chain/chain.hack
+cmp "$snapshot/run.hack" tests/test-chain/run.hack
+cmp "$snapshot/config.json" tests/test-chain/config.json
+
+# Dry-run must not create a missing generated destination either.
+rm tests/test-chain/chain.hack
+if run_cli --ci > "$snapshot/missing.log" 2>&1; then
+  echo 'Expected a missing generated chain to fail CI.' >&2
+  exit 1
+fi
+test ! -e tests/test-chain/chain.hack
 cmp "$snapshot/run.hack" tests/test-chain/run.hack
 cmp "$snapshot/config.json" tests/test-chain/config.json

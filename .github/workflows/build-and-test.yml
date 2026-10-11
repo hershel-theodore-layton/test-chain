@@ -44,5 +44,6 @@ jobs:
           typecheck_engine: strict
       - name: Verify generated signing and CI dry-run
         run: |
+          # Restore development fixtures after the action prunes to production files.
           git restore tests .hhvmconfig.hdf
           sh tests/signing.sh
