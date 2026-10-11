@@ -2,6 +2,7 @@
 namespace HTL\TestChain\_Private;
 
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
+use namespace HTL\HackCompiler;
 use namespace HTL\HH4Shim;
 use type Exception,
   InvalidOperationException,
@@ -9,7 +10,6 @@ use type Exception,
   RecursiveIteratorIterator,
   ReflectionClass;
 use type HTL\TestChain\Invoker;
-use function HTL\HackCompiler\write_source_async;
 use function dirname, file_exists, is_dir, mkdir, unlink;
 
 final class Cli {
@@ -184,7 +184,7 @@ HACK;
 
     using $temporary_file = File\temporary_file();
     $file = $temporary_file->getHandle();
-    await write_source_async(
+    await HackCompiler\write_source_async(
       Str\replace_every($contents, dict[
         '__CHAIN_TYPE__' => $config->getChainType(),
         '__LICENSE_COMMENT__' => $config->getLicenseComment(),
