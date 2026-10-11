@@ -2,8 +2,7 @@
 namespace HTL\TestChain\_Private;
 
 use namespace HH\Lib\{C, File, OS, Regex, Str, Vec};
-use namespace HTL\HackCompiler;
-use namespace HTL\HH4Shim;
+use namespace HTL\{HackCompiler, HH4Shim};
 use type Exception,
   InvalidOperationException,
   RecursiveDirectoryIterator,
