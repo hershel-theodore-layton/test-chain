@@ -181,19 +181,14 @@ __TESTS__;
 
 HACK;
 
-    using $temporary_file = File\temporary_file();
-    $file = $temporary_file->getHandle();
-    await HackCompiler\write_source_async(
+    $signed = await HackCompiler\process_source_file_async(
       Str\replace_every($contents, dict[
         '__CHAIN_TYPE__' => $config->getChainType(),
         '__LICENSE_COMMENT__' => $config->getLicenseComment(),
         '__NAMESPACE__' => $config->getNamespace(),
         '__TESTS__' => $tests,
       ]),
-      $file->getPath(),
     );
-    $file->seek(0);
-    $signed = await $file->readAllAsync();
     await $this->filePutContentsAsync(
       $config->getChainDotHackPath($this->workingDirectory),
       $signed,

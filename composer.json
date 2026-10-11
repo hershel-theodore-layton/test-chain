@@ -11,7 +11,7 @@
     "hhvm": ">=4.153",
     "hershel-theodore-layton/pragma": "<1",
     "hershel-theodore-layton/hhvm-four-shim": "<1",
-    "hershel-theodore-layton/hack-compiler": ">=0.0.0 <1"
+    "hershel-theodore-layton/hack-compiler": ">=0.0.1 <1"
   },
   "require-dev": {
     "hershel-theodore-layton/portable-hack-ast-linters-server": ">=0.5.7 <1"
