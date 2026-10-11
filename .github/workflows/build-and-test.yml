@@ -42,3 +42,7 @@ jobs:
           skip_tests: true
           lint_engine: pha
           typecheck_engine: strict
+      - name: Verify generated signing and CI dry-run
+        run: |
+          git restore tests .hhvmconfig.hdf
+          sh tests/signing.sh

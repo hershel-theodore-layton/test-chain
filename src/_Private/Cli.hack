@@ -9,7 +9,7 @@ use type Exception,
   RecursiveIteratorIterator,
   ReflectionClass;
 use type HTL\TestChain\Invoker;
-use function HTL\PhaLintersServer\hackfmt_and_sign_hack_source_do_not_use_async;
+use function HTL\HackCompiler\write_source_async;
 use function dirname, file_exists, is_dir, mkdir, unlink;
 
 final class Cli {
@@ -182,14 +182,19 @@ __TESTS__;
 
 HACK;
 
-    $signed = await hackfmt_and_sign_hack_source_do_not_use_async(
+    using $temporary_file = File\temporary_file();
+    $file = $temporary_file->getHandle();
+    await write_source_async(
       Str\replace_every($contents, dict[
         '__CHAIN_TYPE__' => $config->getChainType(),
         '__LICENSE_COMMENT__' => $config->getLicenseComment(),
         '__NAMESPACE__' => $config->getNamespace(),
         '__TESTS__' => $tests,
       ]),
+      $file->getPath(),
     );
+    $file->seek(0);
+    $signed = await $file->readAllAsync();
     await $this->filePutContentsAsync(
       $config->getChainDotHackPath($this->workingDirectory),
       $signed,
