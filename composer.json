@@ -14,6 +14,6 @@
     "hershel-theodore-layton/hack-compiler": "<1"
   },
   "require-dev": {
-    "hershel-theodore-layton/portable-hack-ast-linters-server": ">=0.6 <1"
+    "hershel-theodore-layton/portable-hack-ast-linters-server": ">=0.6.1 <1"
   }
 }
