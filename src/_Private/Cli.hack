@@ -146,7 +146,7 @@ final class Cli {
         |> vec($$),
     )
       |> Vec\flatten($$)
-      |> Vec\sort_by($$, $x ==> Str\lowercase($x['namespace'].'__'.$x['name']))
+      |> Vec\sort_by($$, $x ==> Str\lowercase($x['namespace'].'\\'.$x['name']))
       |> Vec\map(
         $$,
         $test ==> $test['is_async']
