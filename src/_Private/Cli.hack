@@ -24,7 +24,7 @@ final class Cli {
 
   public function __construct(
     private string $workingDirectory,
-    vec<string> $argv,
+    private vec<string> $argv,
   )[] {
     $this->isDryRun = C\contains($argv, '--ci');
     $this->printHelp = C\contains($argv, '--help');
@@ -50,6 +50,28 @@ final class Cli {
   }
 
   private async function runAsync()[defaults]: Awaitable<void> {
+    foreach (Vec\drop($this->argv, 1) as $arg) {
+      if (
+        !C\contains(
+          keyset[
+            '--ci',
+            '--help',
+            '--help-ext',
+            '--man',
+            '--reset',
+            '--run',
+            '--update',
+            '--skip-working-dir-check',
+          ],
+          $arg,
+        )
+      ) {
+        throw new InvalidOperationException(
+          Str\format("Unknown argument: %s\n%s\n", $arg, HELP),
+        );
+      }
+    }
+
     if ($this->isDryRun && $this->update) {
       throw new InvalidOperationException(
         "Cannot combine --ci with --update or --reset.\n",
