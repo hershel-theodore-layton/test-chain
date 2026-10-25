@@ -6,7 +6,10 @@ use namespace HTL\TestChain;
 
 // The initial stub was generated with vendor/bin/test-chain.
 // It is now yours to edit and customize.
+<<__DynamicallyConstructible>>
 final class Invoker implements TestChain\Invoker {
+  public function __construct()[defaults] {}
+
   public async function invokeAsync()[defaults]: Awaitable<void> {
     await invoke_tests_async();
   }

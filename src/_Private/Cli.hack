@@ -6,8 +6,7 @@ use namespace HTL\{HH4Shim, HackCompiler};
 use type Exception,
   InvalidOperationException,
   RecursiveDirectoryIterator,
-  RecursiveIteratorIterator,
-  ReflectionClass;
+  RecursiveIteratorIterator;
 use type HTL\TestChain\Invoker;
 use function dirname, file_exists, is_dir, mkdir, unlink;
 
@@ -113,15 +112,15 @@ final class Cli {
     }
 
     if ($this->runTests) {
-      $awaitable = $config->getNamespace().'\\Invoker'
-        |> new ReflectionClass($$)
-        |> $$->newInstanceWithoutConstructor()
-        |> $$ as Invoker
-        |> $$->invokeAsync();
-      await $awaitable;
+      $invoker = self::createInvoker($config->getNamespace().'\\Invoker');
+      await $invoker->invokeAsync();
     }
 
     await $this->filePutContentsAsync($this->configPath, $config->toJson());
+  }
+
+  private static function createInvoker(dynamic $class)[defaults]: Invoker {
+    return (new $class()) as Invoker;
   }
 
   private async function readConfigAsync()[defaults]: Awaitable<Config> {
@@ -229,7 +228,10 @@ use namespace HTL\TestChain;
 
 // The initial stub was generated with vendor/bin/test-chain.
 // It is now yours to edit and customize.
+<<__DynamicallyConstructible>>
 final class Invoker implements TestChain\Invoker {
+  public function __construct()[defaults] {}
+
   public async function invokeAsync()[defaults]: Awaitable<void> {
     await invoke_tests_async();
   }
